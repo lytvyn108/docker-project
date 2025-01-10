@@ -3,22 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database Populator</title>
+    <title>Online Wine Shop</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+        .wine-card {
+            border: 1px solid #ddd;
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .wine-card h3 {
+            margin-top: 0;
+        }
+        .button-section {
+            margin-bottom: 30px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Database Populator</h1>
-    <button onclick="populateDatabase()">Populate Database</button>
+    <div class="container">
+        <h1>Welcome to the Online Wine Shop</h1>
+        
+        <div class="button-section">
+            <h2>Database Populator</h2>
+            <button onclick="populateDatabase()">Populate Database</button>
+        </div>
+
+        <div>
+            <h2>Wine Collection</h2>
+            <div class="wine-list" id="wine-list">
+                <p>Loading wines...</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         function populateDatabase() {
             fetch('/populate-database', { method: 'POST' })
                 .then(response => {
                     if (response.ok) {
                         alert("Database populated successfully!");
+                        loadWines();  
                     } else {
                         alert("Failed to populate the database.");
                     }
                 });
         }
+
+        async function loadWines() {
+            const response = await fetch('/api/wines');
+            if (response.ok) {
+                const wines = await response.json();
+                const wineList = document.getElementById("wine-list");
+                wineList.innerHTML = "";
+
+                wines.forEach(wine => {
+                    wineList.innerHTML += `
+                        <div class="wine-card">
+                            <h3>${wine.name}</h3>
+                            <p>Type: ${wine.type}</p>
+                            <p>Price: $${wine.price}</p>
+                            <p>Country: ${wine.country}</p>
+                            <p>Alcohol Percentage: ${wine.alcoholPercentage}%</p>
+                        </div>
+            `;
+        });
+    } else {
+        alert("Failed to load wines.");
+    }
+}
+
+
+        window.onload = loadWines;
     </script>
 </body>
 </html>

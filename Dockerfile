@@ -9,6 +9,9 @@ COPY app/ /app
 # Install dependencies
 RUN pip install flask faker requests
 
+RUN pip install flask faker requests mysql-connector-python
+
+
 # Expose the port
 EXPOSE 80
 
