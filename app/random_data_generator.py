@@ -6,7 +6,9 @@ from faker import Faker
 fake = Faker()
 
 # Base URL of your API (change to match your setup)
-BASE_URL = "http://localhost:8080/api"
+
+BASE_URL = "http://web:80/api"
+
 
 # Generate random data for Customers
 def generate_customers(num_customers):
