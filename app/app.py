@@ -64,9 +64,14 @@ def populate_database():
         customers = generate_customers(num_customers)
         wines = generate_wines(num_wines)
 
-        # Insert customers
         conn = get_db_connection()
         cursor = conn.cursor()
+
+        # Delete old data
+        cursor.execute("DELETE FROM Customer")
+        cursor.execute("DELETE FROM Wine")
+        
+        # Insert customers
         for customer in customers:
             cursor.execute(
                 "INSERT INTO Customer (firstname, surname, email) VALUES (%s, %s, %s)",
