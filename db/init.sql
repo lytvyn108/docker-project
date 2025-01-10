@@ -50,7 +50,6 @@ CREATE TABLE IF NOT EXISTS IsPaired (
     wineID1 INT,
     wineID2 INT,
     PRIMARY KEY (wineID1, wineID2),
-    FOREIGN KEY (wineID1) REFERENCES Wine(wineID),
     FOREIGN KEY (wineID2) REFERENCES Wine(wineID)
 );
 
@@ -59,9 +58,7 @@ CREATE TABLE IF NOT EXISTS Review (
     reviewID INT AUTO_INCREMENT,
     customerID INT,
     wineID INT,
-    wineID INT,
     customerID INT,
-    authorFirstName VARCHAR(50),
     authorLastName VARCHAR(50),
     rating INT CHECK (rating BETWEEN 1 AND 5),
     comment TEXT,
