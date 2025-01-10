@@ -1,11 +1,20 @@
-# Base image
-FROM nginx:alpine
+FROM python:3.10-slim
 
-# Copy website files to the container
-COPY . /usr/share/nginx/html
+# Set the working directory
+WORKDIR /app
 
-# Expose port 80
+# Copy application code
+COPY app/ /app
+
+# Install dependencies
+RUN pip install flask faker requests
+
+# Expose the port
 EXPOSE 80
+
+# Start the application
+CMD ["python", "app.py"]
+
 
 
 # FROM openjdk:8-jdk-alpine

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Populator</title>
+</head>
+<body>
+    <h1>Database Populator</h1>
+    <button onclick="populateDatabase()">Populate Database</button>
+    <script>
+        function populateDatabase() {
+            fetch('/populate-database', { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Database populated successfully!");
+                    } else {
+                        alert("Failed to populate the database.");
+                    }
+                });
+        }
+    </script>
+</body>
+</html>
