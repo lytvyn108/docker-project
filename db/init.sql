@@ -57,22 +57,18 @@ CREATE TABLE IF NOT EXISTS IsPaired (
 -- Create table for Review (Weak Entity)
 CREATE TABLE IF NOT EXISTS Review (
     reviewID INT AUTO_INCREMENT,
-<<<<<<< HEAD
     customerID INT,
     wineID INT,
-=======
     wineID INT,
     customerID INT,
->>>>>>> e910508 (Database populated successfully)
     authorFirstName VARCHAR(50),
     authorLastName VARCHAR(50),
     rating INT CHECK (rating BETWEEN 1 AND 5),
     comment TEXT,
-<<<<<<< HEAD
+
     PRIMARY KEY (wineID, reviewID),
-=======
+
     PRIMARY KEY (reviewID, wineID),
->>>>>>> e910508 (Database populated successfully)
     FOREIGN KEY (wineID) REFERENCES Wine(wineID),
     FOREIGN KEY (customerID) REFERENCES Customer(customerID)
 );
