@@ -41,8 +41,12 @@ def generate_wines(num_wines):
 # Generate random data for CollectionWines
 def generate_collection_wines(wines, num_collection_wines):
     collection_wines = []
+    used_wine_ids = set()
     for _ in range(num_collection_wines):
         wine = random.choice(wines)
+        while wine["wineID"] in used_wine_ids:
+            wine = random.choice(wines)
+        used_wine_ids.add(wine["wineID"])
         collection_wine = {
             "wineID": wine["wineID"],  # Ensure this matches the key in the Wine table
             "numberInCollection": random.randint(1, 100),
@@ -63,6 +67,57 @@ def generate_orders(customers, num_orders):
         }
         orders.append(order)
     return orders
+
+def generate_contains(orders, wines, num_contains):
+    contains = []
+    used_combinations = set()
+    for _ in range(num_contains):
+        order = random.choice(orders)
+        wine = random.choice(wines)
+        combination = (order["orderID"], wine["wineID"])
+        while combination in used_combinations:
+            order = random.choice(orders)
+            wine = random.choice(wines)
+            combination = (order["orderID"], wine["wineID"])
+        used_combinations.add(combination)
+        contain = {
+            "orderID": order["orderID"],
+            "wineID": wine["wineID"],
+            "quantity": random.randint(1, 10)
+        }
+        contains.append(contain)
+    return contains
+
+def generate_is_paired(wines, num_pairs):
+    is_paired = []
+    used_combinations = set()
+    for _ in range(num_pairs):
+        wine1, wine2 = random.sample(wines, 2)
+        combination = (wine1["wineID"], wine2["wineID"])
+        while combination in used_combinations or (wine2["wineID"], wine1["wineID"]) in used_combinations:
+            wine1, wine2 = random.sample(wines, 2)
+            combination = (wine1["wineID"], wine2["wineID"])
+        used_combinations.add(combination)
+        pair = {
+            "wineID1": wine1["wineID"],
+            "wineID2": wine2["wineID"]
+        }
+        is_paired.append(pair)
+    return is_paired
+
+def generate_reviews(customers, wines, num_reviews):
+    reviews = []
+    for _ in range(num_reviews):
+        customer = random.choice(customers)
+        wine = random.choice(wines)
+        review = {
+            "customerID": customer["customerID"],
+            "wineID": wine["wineID"],
+            "rating": random.randint(1, 5),
+            "comment": fake.text()
+        }
+        reviews.append(review)
+    return reviews
 
 # Send POST requests to the API to insert data
 def send_data_to_api(endpoint, data_list):

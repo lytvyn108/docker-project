@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS `Order` (
 CREATE TABLE IF NOT EXISTS Contains (
     orderID INT,
     wineID INT,
+    quantity INT,
     PRIMARY KEY (orderID, wineID),
     FOREIGN KEY (orderID) REFERENCES `Order`(orderID),
     FOREIGN KEY (wineID) REFERENCES Wine(wineID)
@@ -59,11 +60,9 @@ CREATE TABLE IF NOT EXISTS Review (
     reviewID INT AUTO_INCREMENT,
     customerID INT,
     wineID INT,
-    authorLastName VARCHAR(50),
     rating INT CHECK (rating BETWEEN 1 AND 5),
     comment TEXT,
-
-    PRIMARY KEY (wineID, reviewID),
+    PRIMARY KEY (reviewID, wineID),
     FOREIGN KEY (wineID) REFERENCES Wine(wineID),
     FOREIGN KEY (customerID) REFERENCES Customer(customerID)
 );

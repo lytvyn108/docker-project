@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, render_template
-from random_data_generator import generate_customers, generate_wines, generate_orders, generate_collection_wines  # Import the generator
+from random_data_generator import generate_customers, generate_wines, generate_orders, generate_collection_wines, generate_contains, generate_is_paired, generate_reviews  # Import the generator
 import mysql.connector
 import logging
 
@@ -63,6 +63,9 @@ def populate_database():
         num_wines = 10
         num_orders = 5
         num_collection_wines = 3
+        num_contains = 5
+        num_pairs = 3
+        num_reviews = 5
         customers = generate_customers(num_customers)
         wines = generate_wines(num_wines)
 
@@ -70,6 +73,9 @@ def populate_database():
         cursor = conn.cursor()
 
         # Delete old data
+        cursor.execute("DELETE FROM Contains")
+        cursor.execute("DELETE FROM IsPaired")
+        cursor.execute("DELETE FROM Review")
         cursor.execute("DELETE FROM `Order`")
         cursor.execute("DELETE FROM CollectionWine")
         cursor.execute("DELETE FROM Customer")
@@ -111,10 +117,40 @@ def populate_database():
 
         # Generate and insert orders
         orders = generate_orders(customers, num_orders)
+        order_ids = []
         for order in orders:
             cursor.execute(
                 "INSERT INTO `Order` (customerID, status, deliveryPrice) VALUES (%s, %s, %s)",
                 (order["customerID"], order["status"], order["deliveryPrice"])
+            )
+            order_ids.append(cursor.lastrowid)
+
+        # Update orders with their IDs
+        for i, order_id in enumerate(order_ids):
+            orders[i]["orderID"] = order_id
+        
+        # Generate and insert contains
+        contains = generate_contains(orders, wines, num_contains)
+        for contain in contains:
+            cursor.execute(
+                "INSERT INTO Contains (orderID, wineID, quantity) VALUES (%s, %s, %s)",
+                (contain["orderID"], contain["wineID"], contain["quantity"])
+            )
+
+        # Generate and insert is_paired
+        is_paired = generate_is_paired(wines, num_pairs)
+        for pair in is_paired:
+            cursor.execute(
+                "INSERT INTO IsPaired (wineID1, wineID2) VALUES (%s, %s)",
+                (pair["wineID1"], pair["wineID2"])
+            )
+
+        # Generate and insert reviews
+        reviews = generate_reviews(customers, wines, num_reviews)
+        for review in reviews:
+            cursor.execute(
+                "INSERT INTO Review (customerID, wineID, rating, comment) VALUES (%s, %s, %s, %s)",
+                (review["customerID"], review["wineID"], review["rating"], review["comment"])
             )
 
         conn.commit()
