@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, render_template
-from random_data_generator import generate_customers, generate_wines  # Import the generator
+from random_data_generator import generate_customers, generate_wines, generate_orders  # Import the generator
 import mysql.connector
 import logging
 
@@ -61,6 +61,7 @@ def populate_database():
     try:
         num_customers = 10
         num_wines = 10
+        num_orders = 5
         customers = generate_customers(num_customers)
         wines = generate_wines(num_wines)
 
@@ -68,21 +69,36 @@ def populate_database():
         cursor = conn.cursor()
 
         # Delete old data
+        cursor.execute("DELETE FROM `Order`")
         cursor.execute("DELETE FROM Customer")
         cursor.execute("DELETE FROM Wine")
-        
+
         # Insert customers
+        customer_ids = []
         for customer in customers:
             cursor.execute(
                 "INSERT INTO Customer (firstname, surname, email) VALUES (%s, %s, %s)",
                 (customer["firstname"], customer["surname"], customer["email"])
             )
+            customer_ids.append(cursor.lastrowid)
 
+        # Update customers with their IDs
+        for i, customer_id in enumerate(customer_ids):
+            customers[i]["customerID"] = customer_id
+            
         # Insert wines
         for wine in wines:
             cursor.execute(
                 "INSERT INTO Wine (name, type, price, country, alcoholPercentage) VALUES (%s, %s, %s, %s, %s)",
                 (wine["name"], wine["type"], wine["price"], wine["country"], wine["alcoholPercentage"])
+            )
+
+        # Generate and insert orders
+        orders = generate_orders(customers, num_orders)
+        for order in orders:
+            cursor.execute(
+                "INSERT INTO `Order` (customerID, status, deliveryPrice) VALUES (%s, %s, %s)",
+                (order["customerID"], order["status"], order["deliveryPrice"])
             )
 
         conn.commit()

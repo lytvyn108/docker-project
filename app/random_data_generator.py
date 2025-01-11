@@ -39,7 +39,7 @@ def generate_wines(num_wines):
     return wines
 
 # Generate random data for Orders
-def generate_orders(customers, wines, num_orders):
+def generate_orders(customers, num_orders):
     orders = []
     for _ in range(num_orders):
         customer = random.choice(customers)
