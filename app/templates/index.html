@@ -68,23 +68,32 @@
                 wineList.innerHTML = "";
 
                 wines.forEach(wine => {
-                    wineList.innerHTML += `
+                    let wineCard = `
                         <div class="wine-card">
                             <h3>${wine.name}</h3>
                             <p>Type: ${wine.type}</p>
                             <p>Price: $${wine.price}</p>
                             <p>Country: ${wine.country}</p>
                             <p>Alcohol Percentage: ${wine.alcoholPercentage}%</p>
-                        </div>
-            `;
-        });
-    } else {
-        alert("Failed to load wines.");
-    }
-}
+                    `;
 
+                    if (wine.isCollectionWine) {
+                            wineCard += `
+                                <p><strong>Collection Wine</strong></p>
+                                <p>Number in Collection: ${wine.numberInCollection}</p>
+                                <p>Special Packaging: ${wine.specialPackaging}</p>
+                            `;
+                    }
 
-        window.onload = loadWines;
+                    wineCard += `</div>`;
+                    wineList.innerHTML += wineCard;
+                });
+            } else {
+                alert("Failed to load wines.");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", loadWines);
     </script>
 </body>
 </html>

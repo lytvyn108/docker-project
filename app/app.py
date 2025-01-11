@@ -167,7 +167,13 @@ def get_wines():
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)  # Returns rows as dictionaries
-        cursor.execute("SELECT * FROM Wine;")
+        cursor.execute("""
+        SELECT w.wineID, w.name, w.type, w.price, w.country, w.alcoholPercentage,
+               cw.numberInCollection, cw.specialPackaging,
+               CASE WHEN cw.wineID IS NOT NULL THEN TRUE ELSE FALSE END AS isCollectionWine
+        FROM Wine w
+        LEFT JOIN CollectionWine cw ON w.wineID = cw.wineID
+    """)
         wines = cursor.fetchall()
         conn.close()
         return jsonify(wines), 200
