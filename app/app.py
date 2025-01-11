@@ -19,6 +19,10 @@ def get_db_connection():
 def home():
     return render_template("index.html")  # Render the GUI
 
+@app.route("/top_spender_report.html")
+def top_spender_report():
+    return render_template("top_spender_report.html")
+
 # Add a new customer
 @app.route("/api/customers", methods=["POST"])
 def add_customer():
@@ -180,6 +184,54 @@ def get_wines():
     except Exception as e:
         app.logger.error(f"Error fetching wines: {e}")
         return jsonify({"error": str(e)}), 500
+    
+@app.route("/api/report/top-spender", methods=["GET"])
+def get_top_spender_report():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Query to find the customer who spent the most on wines
+    cursor.execute("""
+        SELECT c.customerID, c.firstname, c.surname, SUM(w.price * co.quantity) as total_spent
+        FROM Customer c
+        JOIN `Order` o ON c.customerID = o.customerID
+        JOIN Contains co ON o.orderID = co.orderID
+        JOIN Wine w ON co.wineID = w.wineID
+        GROUP BY c.customerID
+        ORDER BY total_spent DESC
+        LIMIT 1
+    """)
+    customer = cursor.fetchone()
+
+    if customer:
+        customer_id = customer["customerID"]
+        customer_name = f"{customer['firstname']} {customer['surname']}"
+        total_spent = customer["total_spent"]
+
+        # Query to find the wines purchased by the customer
+        cursor.execute("""
+            SELECT w.name, w.type, w.price, w.country, w.alcoholPercentage, co.quantity
+            FROM Contains co
+            JOIN Wine w ON co.wineID = w.wineID
+            JOIN `Order` o ON co.orderID = o.orderID
+            WHERE o.customerID = %s
+        """, (customer_id,))
+        wines = cursor.fetchall()
+
+        report = {
+            "customerName": customer_name,
+            "totalSpent": total_spent,
+            "wines": wines
+        }
+    else:
+        report = {
+            "customerName": "No customer found",
+            "totalSpent": 0,
+            "wines": []
+        }
+
+    conn.close()
+    return jsonify(report)
 
 # Route to render the shop page (if you need a separate shop page)
 @app.route("/shop")

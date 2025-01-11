@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Spender Report</title>
+    <style>
+        .back-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="goBack()">Back to Wine List</button>
+    <div id="report-content">
+        <p>Loading report...</p>
+    </div>
+
+    <script>
+        async function loadTopSpenderReport() {
+            try {
+                const response = await fetch('/api/report/top-spender');
+                if (response.ok) {
+                    const report = await response.json();
+                    console.log("Report data:", report);
+                    let reportContent = `
+                        <h2>Customer who spent the most on orders</h2>
+                        <p>Name: ${report.customerName}</p>
+                        <p>Total Spent: ${report.totalSpent}</p>
+                        <h3>Purchased Wines:</h3>
+                        <ul>
+                    `;
+                    report.wines.forEach(wine => {
+                        reportContent += `
+                            <li>
+                                <p>Name: ${wine.name}</p>
+                                <p>Type: ${wine.type}</p>
+                                <p>Price: ${wine.price}</p>
+                                <p>Country: ${wine.country}</p>
+                                <p>Alcohol Percentage: ${wine.alcoholPercentage}%</p>
+                                <p>Quantity: ${wine.quantity}</p>
+                            </li>
+                        `;
+                    });
+                    reportContent += `</ul>`;
+                    document.getElementById("report-content").innerHTML = reportContent;
+                } else {
+                    alert("Failed to load report.");
+                }
+            } catch (error) {
+                console.error("Error loading report:", error); // Debugging line
+                document.getElementById("report-content").innerHTML = "<p>Error loading report.</p>";
+            }
+        }
+
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        document.addEventListener("DOMContentLoaded", loadTopSpenderReport);
+    </script>
+</body>
+</html>
