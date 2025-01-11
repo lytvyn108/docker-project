@@ -50,6 +50,13 @@
         </div>
 
         <div>
+            <h2>Select Customer</h2>
+            <select id="customer-select">
+                <option value="">Select a customer</option>
+            </select>
+        </div>
+
+        <div>
             <h2>Wine Collection</h2>
             <div class="wine-list" id="wine-list">
                 <p>Loading wines...</p>
@@ -65,11 +72,29 @@
                 .then(response => {
                     if (response.ok) {
                         alert("Database populated successfully!");
+                        loadCustomers();
                         loadWines();  
                     } else {
                         alert("Failed to populate the database.");
                     }
                 });
+        }
+
+        async function loadCustomers() {
+            const response = await fetch('/api/customers');
+            if (response.ok) {
+                const customers = await response.json();
+                const customerSelect = document.getElementById("customer-select");
+                customerSelect.innerHTML = '<option value="">Select a customer</option>';
+                customers.forEach(customer => {
+                    const option = document.createElement("option");
+                    option.value = customer.customerID;
+                    option.textContent = `${customer.firstname} ${customer.surname}`;
+                    customerSelect.appendChild(option);
+                });
+            } else {
+                alert("Failed to load customers.");
+            }
         }
 
         async function loadWines() {
@@ -97,7 +122,9 @@
                             `;
                     }
 
-                    wineCard += `</div>`;
+                    wineCard += `
+                        <button onclick="addToCart(${wine.wineID})">Add to Cart</button>
+                    </div>`;
                     wineList.innerHTML += wineCard;
                 });
             } else {
@@ -105,7 +132,35 @@
             }
         }
 
-        document.addEventListener("DOMContentLoaded", loadWines);
+        async function addToCart(wineID) {
+            const customerSelect = document.getElementById("customer-select");
+            const customerID = customerSelect.value;
+
+            if (!customerID) {
+                alert("Please select a customer.");
+                return;
+            }
+
+            const response = await fetch('/api/add-to-cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ wineID, customerID })
+            });
+
+            if (response.ok) {
+                alert("Wine added to cart successfully!");
+            } else {
+                const error = await response.json();
+                alert("Failed to add wine to cart: " + error.message);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadCustomers();
+            loadWines();
+        });
     </script>
 </body>
 </html>
