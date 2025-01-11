@@ -62,7 +62,8 @@ CREATE TABLE IF NOT EXISTS Review (
     wineID INT,
     rating INT CHECK (rating BETWEEN 1 AND 5),
     comment TEXT,
-    PRIMARY KEY (reviewID, wineID),
+    PRIMARY KEY (reviewID),  
     FOREIGN KEY (wineID) REFERENCES Wine(wineID),
     FOREIGN KEY (customerID) REFERENCES Customer(customerID)
 );
+

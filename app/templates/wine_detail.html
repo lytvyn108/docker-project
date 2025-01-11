@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Wine Detail</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .review {
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+        }
+        .rating {
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Wine Detail</h1>
+    <div id="wine-info">
+       
+    </div>
+
+    <h2>Reviews</h2>
+    <div id="review-list">
+    </div>
+
+    <h3>Submit Your Review</h3>
+    <form id="review-form">
+       
+        <label for="customerID">Customer ID:</label>
+        <input type="number" id="customerID" name="customerID" required />
+        <br/><br/>
+
+        <label for="rating">Rating (1-5):</label>
+        <input type="number" id="rating" name="rating" min="1" max="5" required />
+        <br/><br/>
+
+        <label for="comment">Comment:</label><br/>
+        <textarea id="comment" name="comment" rows="4" cols="50"></textarea>
+        <br/><br/>
+
+        <button type="submit">Submit Review</button>
+        <p class="error" id="error-message"></p>
+    </form>
+
+    <div id="confirmation"></div>
+</div>
+
+<script>
+   
+ 
+    const wineID = "{{ wine_id }}";  
+
+
+    async function loadWineDetails() {
+        try {
+            const response = await fetch(`/api/wines/${wineID}/details`);
+            if (!response.ok) {
+                throw new Error("Failed to load wine details");
+            }
+            const data = await response.json();
+            
+            document.getElementById("wine-info").innerHTML = `
+                <h2>${data.wine.name}</h2>
+                <p>Type: ${data.wine.type}</p>
+                <p>Price: $${data.wine.price}</p>
+                <p>Country: ${data.wine.country}</p>
+                <p>Alcohol Percentage: ${data.wine.alcoholPercentage}%</p>
+                <p><strong>Average Rating:</strong> ${data.averageRating.toFixed(1)} / 5</p>
+            `;
+            const reviewList = document.getElementById("review-list");
+            reviewList.innerHTML = "";
+            data.reviews.forEach(review => {
+                const div = document.createElement("div");
+                div.classList.add("review");
+                div.innerHTML = `
+                    <p class="rating">Rating: ${review.rating} / 5</p>
+                    <p>${review.comment}</p>
+                    <p><em>By Customer #${review.customerID}</em></p>
+                `;
+                reviewList.appendChild(div);
+            });
+
+        } catch (error) {
+            console.error(error);
+            document.getElementById("wine-info").textContent = "Error loading wine details.";
+        }
+    }
+
+    const reviewForm = document.getElementById("review-form");
+    reviewForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const errorMessageEl = document.getElementById("error-message");
+        errorMessageEl.textContent = ""; 
+
+        const customerID = document.getElementById("customerID").value;
+        const rating = document.getElementById("rating").value;
+        const comment = document.getElementById("comment").value;
+
+        if (rating < 1 || rating > 5) {
+            errorMessageEl.textContent = "Rating must be between 1 and 5.";
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/wines/${wineID}/reviews`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ customerID, rating, comment })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to submit review");
+            }
+            reviewForm.reset();
+
+            document.getElementById("confirmation").textContent = "Review submitted successfully!";
+
+            loadWineDetails();
+        } catch (error) {
+            console.error(error);
+            errorMessageEl.textContent = error.message;
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", loadWineDetails);
+</script>
+</body>
+</html>

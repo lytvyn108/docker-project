@@ -46,6 +46,7 @@
             </div>
         </div>
     </div>
+    
 
     <script>
         function populateDatabase() {
@@ -78,16 +79,22 @@
                     `;
 
                     if (wine.isCollectionWine) {
-                            wineCard += `
-                                <p><strong>Collection Wine</strong></p>
-                                <p>Number in Collection: ${wine.numberInCollection}</p>
-                                <p>Special Packaging: ${wine.specialPackaging}</p>
-                            `;
+                        wineCard += `
+                            <p><strong>Collection Wine</strong></p>
+                            <p>Number in Collection: ${wine.numberInCollection}</p>
+                            <p>Special Packaging: ${wine.specialPackaging}</p>
+                        `;
                     }
+
+                    // Add a "View Details" link
+                    wineCard += `
+                        <p><a href="/wine/${wine.wineID}">View Details</a></p>
+                    `;
 
                     wineCard += `</div>`;
                     wineList.innerHTML += wineCard;
                 });
+
             } else {
                 alert("Failed to load wines.");
             }
