@@ -25,6 +25,81 @@ def get_db_connection():
 def home():
     return render_template("index.html")  
 
+@app.route("/top_spender_report.html")
+def top_spender_report():
+    return render_template("top_spender_report.html")
+
+@app.route("/api/customers", methods=["GET"])
+def get_customers():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT customerID, firstname, surname FROM Customer")
+    customers = cursor.fetchall()
+    conn.close()
+    return jsonify(customers)
+
+@app.route("/api/add-to-cart", methods=["POST"])
+def add_to_cart():
+    data = request.json
+    wine_id = data.get("wineID")
+    customer_id = data.get("customerID")
+
+    if not wine_id or not customer_id:
+        return jsonify({"message": "Wine ID and Customer ID are required"}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Check if the wine exists
+    cursor.execute("""
+        SELECT wineID, name, price
+        FROM Wine
+        WHERE wineID = %s
+    """, (wine_id,))
+    wine = cursor.fetchone()
+
+    if not wine:
+        conn.close()
+        return jsonify({"message": "Wine not found"}), 404
+
+    # Check if the customer has an active order
+    cursor.execute("""
+        SELECT orderID
+        FROM `Order`
+        WHERE customerID = %s AND status = 'active'
+    """, (customer_id,))
+    order = cursor.fetchone()
+
+    if not order:
+        # Create a new order if none exists
+        cursor.execute("""
+            INSERT INTO `Order` (customerID, status, deliveryPrice)
+            VALUES (%s, 'active', 0)
+        """, (customer_id,))
+        order_id = cursor.lastrowid
+    else:
+        order_id = order["orderID"]
+
+    # Add the wine to the order
+    cursor.execute("""
+        INSERT INTO Contains (orderID, wineID, quantity)
+        VALUES (%s, %s, 1)
+        ON DUPLICATE KEY UPDATE quantity = quantity + 1
+    """, (order_id, wine_id))
+
+    # Update the order total
+    cursor.execute("""
+        UPDATE `Order`
+        SET deliveryPrice = deliveryPrice + %s
+        WHERE orderID = %s
+    """, (wine["price"], order_id))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "Wine added to order successfully"}), 200
+
+
 # Add a new customer
 @app.route("/api/customers", methods=["POST"])
 def add_customer():
@@ -190,6 +265,54 @@ def get_wines():
     except Exception as e:
         app.logger.error(f"Error fetching wines: {e}")
         return jsonify({"error": str(e)}), 500
+    
+@app.route("/api/report/top-spender", methods=["GET"])
+def get_top_spender_report():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Query to find the customer who spent the most on wines
+    cursor.execute("""
+        SELECT c.customerID, c.firstname, c.surname, SUM(w.price * co.quantity) as total_spent
+        FROM Customer c
+        JOIN `Order` o ON c.customerID = o.customerID
+        JOIN Contains co ON o.orderID = co.orderID
+        JOIN Wine w ON co.wineID = w.wineID
+        GROUP BY c.customerID
+        ORDER BY total_spent DESC
+        LIMIT 1
+    """)
+    customer = cursor.fetchone()
+
+    if customer:
+        customer_id = customer["customerID"]
+        customer_name = f"{customer['firstname']} {customer['surname']}"
+        total_spent = customer["total_spent"]
+
+        # Query to find the wines purchased by the customer
+        cursor.execute("""
+            SELECT w.name, w.type, w.price, w.country, w.alcoholPercentage, co.quantity
+            FROM Contains co
+            JOIN Wine w ON co.wineID = w.wineID
+            JOIN `Order` o ON co.orderID = o.orderID
+            WHERE o.customerID = %s
+        """, (customer_id,))
+        wines = cursor.fetchall()
+
+        report = {
+            "customerName": customer_name,
+            "totalSpent": total_spent,
+            "wines": wines
+        }
+    else:
+        report = {
+            "customerName": "No customer found",
+            "totalSpent": 0,
+            "wines": []
+        }
+
+    conn.close()
+    return jsonify(report)
 
 @app.route("/api/wines/<int:wine_id>/details", methods=["GET"])
 def get_wine_details(wine_id):
