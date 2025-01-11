@@ -38,6 +38,19 @@ def generate_wines(num_wines):
         wines.append(wine)
     return wines
 
+# Generate random data for CollectionWines
+def generate_collection_wines(wines, num_collection_wines):
+    collection_wines = []
+    for _ in range(num_collection_wines):
+        wine = random.choice(wines)
+        collection_wine = {
+            "wineID": wine["wineID"],  # Ensure this matches the key in the Wine table
+            "numberInCollection": random.randint(1, 100),
+            "specialPackaging": fake.word().capitalize() + " Packaging",
+        }
+        collection_wines.append(collection_wine)
+    return collection_wines
+
 # Generate random data for Orders
 def generate_orders(customers, num_orders):
     orders = []

@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, render_template
-from random_data_generator import generate_customers, generate_wines, generate_orders  # Import the generator
+from random_data_generator import generate_customers, generate_wines, generate_orders, generate_collection_wines  # Import the generator
 import mysql.connector
 import logging
 
@@ -62,6 +62,7 @@ def populate_database():
         num_customers = 10
         num_wines = 10
         num_orders = 5
+        num_collection_wines = 3
         customers = generate_customers(num_customers)
         wines = generate_wines(num_wines)
 
@@ -70,6 +71,7 @@ def populate_database():
 
         # Delete old data
         cursor.execute("DELETE FROM `Order`")
+        cursor.execute("DELETE FROM CollectionWine")
         cursor.execute("DELETE FROM Customer")
         cursor.execute("DELETE FROM Wine")
 
@@ -85,12 +87,26 @@ def populate_database():
         # Update customers with their IDs
         for i, customer_id in enumerate(customer_ids):
             customers[i]["customerID"] = customer_id
-            
+
         # Insert wines
+        wine_ids = []
         for wine in wines:
             cursor.execute(
                 "INSERT INTO Wine (name, type, price, country, alcoholPercentage) VALUES (%s, %s, %s, %s, %s)",
                 (wine["name"], wine["type"], wine["price"], wine["country"], wine["alcoholPercentage"])
+            )
+            wine_ids.append(cursor.lastrowid)
+
+        # Update wines with their IDs
+        for i, wine_id in enumerate(wine_ids):
+            wines[i]["wineID"] = wine_id
+
+        # Generate and insert collection wines
+        collection_wines = generate_collection_wines(wines, num_collection_wines)
+        for collection_wine in collection_wines:
+            cursor.execute(
+                "INSERT INTO CollectionWine (wineID, numberInCollection, specialPackaging) VALUES (%s, %s, %s)",
+                (collection_wine["wineID"], collection_wine["numberInCollection"], collection_wine["specialPackaging"])
             )
 
         # Generate and insert orders
