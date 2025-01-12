@@ -6,37 +6,112 @@
     <title>Online Wine Shop</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
             margin: 0;
             padding: 20px;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: auto;
-        }
-        .wine-card {
-            border: 1px solid #ddd;
             background-color: white;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
         }
-        .wine-card h3 {
-            margin-top: 0;
+        h1, h2 {
+            text-align: center;
+            color: #333;
         }
         .button-section {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 30px;
         }
-        .report-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
+        .button-section button,
+        .button-section a button {
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .populate-button {
+            background-color: #007bff;
+            color: white;
+        }
+        .populate-button:hover {
+            background-color: #0056b3;
+        }
+        .report-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .report-button:hover {
+            background-color: #388e3c;
+        }
+        .select-customer {
+            text-align: center;
+            margin: 40px 0 30px;
+        }
+        #customer-select {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .wine-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+        }
+        .wine-card {
+            width: 300px;
+            border: 1px solid #ddd;
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .wine-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .wine-card h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .wine-card p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .wine-card a {
+            display: inline-block;
+            margin-top: 10px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+        .wine-card a:hover {
+            text-decoration: underline;
+        }
+        .wine-card button {
+            background-color: #ff7043;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        .wine-card button:hover {
+            background-color: #d84315;
         }
     </style>
 </head>
@@ -45,18 +120,16 @@
         <h1>Welcome to the Online Wine Shop</h1>
         
         <div class="button-section">
-            <h2>Database Populator</h2>
-            <button onclick="populateDatabase()">Populate Database</button>
-        
+            <button class="populate-button" onclick="populateDatabase()">Populate Database</button>
             <a href="/collection-wine-report">
-                <button style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
-                    View Collection Wine Sales Report
-                </button>
+                <button class="report-button">View Collection Wine Sales Report</button>
+            </a>
+            <a href="/top_spender_report.html">
+                <button class="report-button">View Top Spender Report</button>
             </a>
         </div>
-        
 
-        <div>
+        <div class="select-customer">
             <h2>Select Customer</h2>
             <select id="customer-select">
                 <option value="">Select a customer</option>
@@ -70,8 +143,6 @@
             </div>
         </div>
     </div>
-
-    <button class="report-button" onclick="window.location.href='/top_spender_report.html'">View Top Spender Report</button>
 
     <script>
         function populateDatabase() {
