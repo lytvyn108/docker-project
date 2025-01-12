@@ -43,9 +43,13 @@
 
     <h3>Submit Your Review</h3>
     <form id="review-form">
-       
-        <label for="customerID">Customer ID:</label>
-        <input type="number" id="customerID" name="customerID" required />
+        <label for="customer">Customer:</label>
+        <select id="customer" name="customerID" required>
+            <option value="">-- Select Customer --</option>
+            {% for customer in customers %}
+                <option value="{{ customer.customerID }}">{{ customer.firstname }} {{ customer.surname }}</option>
+            {% endfor %}
+        </select>
         <br/><br/>
 
         <label for="rating">Rating (1-5):</label>
@@ -64,10 +68,7 @@
 </div>
 
 <script>
-   
- 
     const wineID = "{{ wine_id }}";  
-
 
     async function loadWineDetails() {
         try {
@@ -110,7 +111,7 @@
         const errorMessageEl = document.getElementById("error-message");
         errorMessageEl.textContent = ""; 
 
-        const customerID = document.getElementById("customerID").value;
+        const customerID = document.getElementById("customer").value;
         const rating = document.getElementById("rating").value;
         const comment = document.getElementById("comment").value;
 

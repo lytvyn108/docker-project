@@ -463,7 +463,28 @@ def report_page():
 
 @app.route("/wine/<int:wine_id>")
 def wine_detail(wine_id):
-    return render_template("wine_detail.html", wine_id=wine_id)
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        # Fetch wine details
+        cursor.execute("SELECT * FROM Wine WHERE wineID = %s", (wine_id,))
+        wine = cursor.fetchone()
+        if not wine:
+            conn.close()
+            return "Wine not found", 404
+        
+        # Fetch customers
+        cursor.execute("SELECT customerID, firstname, surname FROM Customer")
+        customers = cursor.fetchall()
+        
+        conn.close()
+        return render_template("wine_detail.html", wine_id=wine["wineID"], wine=wine, customers=customers)
+
+    except Exception as e:
+        app.logger.error(f"Error fetching wine details: {e}")
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80, debug=True)
