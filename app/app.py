@@ -484,6 +484,46 @@ def wine_detail(wine_id):
     except Exception as e:
         app.logger.error(f"Error fetching wine details: {e}")
         return jsonify({"error": str(e)}), 500
+    
+@app.route("/collection-wine-report")
+def collection_wine_report_page():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT
+                W.name AS Wine_Name,
+                W.type AS Wine_Type,
+                CW.numberInCollection AS Number_in_Collection,
+                CW.specialPackaging AS Special_Packaging,
+                COUNT(DISTINCT O.orderID) AS Total_Orders,
+                SUM(C.quantity) AS Total_Quantity_Sold,
+                AVG(R.rating) AS Average_Rating,
+                COUNT(R.reviewID) AS Total_Reviews
+            FROM
+                Wine W
+                INNER JOIN CollectionWine CW ON W.wineID = CW.wineID
+                INNER JOIN Contains C ON W.wineID = C.wineID
+                INNER JOIN `Order` O ON C.orderID = O.orderID
+                LEFT JOIN Review R ON W.wineID = R.wineID
+            WHERE
+                O.status = 'Completed'
+            GROUP BY
+                W.name, W.type, CW.numberInCollection, CW.specialPackaging
+            ORDER BY
+                Total_Orders DESC, Average_Rating DESC
+        """
+
+        cursor.execute(query)
+        report_data = cursor.fetchall()
+        conn.close()
+
+        return render_template("review_report.html", report=report_data)  # Use the correct filename here
+
+    except Exception as e:
+        app.logger.error(f"Error fetching report: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":

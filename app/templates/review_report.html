@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collection Wine Sales Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .back-button {
+            margin-top: 20px;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Collection Wine Sales Report</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Wine Name</th>
+                <th>Wine Type</th>
+                <th>Number in Collection</th>
+                <th>Special Packaging</th>
+                <th>Total Orders</th>
+                <th>Total Quantity Sold</th>
+                <th>Average Rating</th>
+                <th>Total Reviews</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for wine in report %}
+                <tr>
+                    <td>{{ wine.Wine_Name }}</td>
+                    <td>{{ wine.Wine_Type }}</td>
+                    <td>{{ wine.Number_in_Collection }}</td>
+                    <td>{{ wine.Special_Packaging }}</td>
+                    <td>{{ wine.Total_Orders }}</td>
+                    <td>{{ wine.Total_Quantity_Sold }}</td>
+                    <td>{{ wine.Average_Rating|default(0) }}</td>
+                    <td>{{ wine.Total_Reviews }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="/" class="back-button">Back to Home</a>
+</body>
+</html>

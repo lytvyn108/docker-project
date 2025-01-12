@@ -55,18 +55,18 @@ def generate_collection_wines(wines, num_collection_wines):
         collection_wines.append(collection_wine)
     return collection_wines
 
-# Generate random data for Orders
 def generate_orders(customers, num_orders):
     orders = []
     for _ in range(num_orders):
         customer = random.choice(customers)
         order = {
             "customerID": customer["customerID"],
-            "status": random.choice(["Processing", "Shipped", "Delivered"]),
+            "status": "Completed",  
             "deliveryPrice": round(random.uniform(5, 50), 2),
         }
         orders.append(order)
     return orders
+
 
 def generate_contains(orders, wines, num_contains):
     contains = []
@@ -128,11 +128,15 @@ def send_data_to_api(endpoint, data_list):
         else:
             print(f"Failed to add {data} to {endpoint}: {response.text}")
 
-# Main function to generate and send data
 def populate_database():
     num_customers = 10
     num_wines = 10
+    num_collection_wines = 5
+    num_orders = 5
+    num_contains = 10
+    num_reviews = 10
 
+    # Generate data
     customers = generate_customers(num_customers)
     wines = generate_wines(num_wines)
 
@@ -141,12 +145,38 @@ def populate_database():
         response = requests.post(f"{BASE_URL}/customers", json=customer)
         if response.status_code != 201:
             raise Exception(f"Failed to insert customer: {response.json()}")
+        customer["customerID"] = response.json()["customerID"]
 
     # Insert wines into the database
     for wine in wines:
         response = requests.post(f"{BASE_URL}/wines", json=wine)
         if response.status_code != 201:
             raise Exception(f"Failed to insert wine: {response.json()}")
+        wine["wineID"] = response.json()["wineID"]
+
+    # Generate collection wines and insert them
+    collection_wines = generate_collection_wines(wines, num_collection_wines)
+    send_data_to_api("collection-wines", collection_wines)
+
+    # Generate orders and insert them
+    orders = generate_orders(customers, num_orders)
+    for order in orders:
+        order["status"] = "Completed"  # Ensure orders are marked as "Completed"
+        response = requests.post(f"{BASE_URL}/orders", json=order)
+        if response.status_code != 201:
+            raise Exception(f"Failed to insert order: {response.json()}")
+        order["orderID"] = response.json()["orderID"]
+
+    # Generate and insert Contains entries (linking wines to orders)
+    contains_entries = generate_contains(orders, wines, num_contains)
+    send_data_to_api("add-to-cart", contains_entries)
+
+    # Generate and insert reviews
+    reviews = generate_reviews(customers, wines, num_reviews)
+    send_data_to_api("reviews", reviews)
+
+    print("Database populated successfully!")
+
 
 if __name__ == "__main__":
     populate_database()

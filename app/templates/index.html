@@ -47,7 +47,14 @@
         <div class="button-section">
             <h2>Database Populator</h2>
             <button onclick="populateDatabase()">Populate Database</button>
+        
+            <a href="/collection-wine-report">
+                <button style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                    View Collection Wine Sales Report
+                </button>
+            </a>
         </div>
+        
 
         <div>
             <h2>Select Customer</h2>
@@ -122,7 +129,6 @@
                         `;
                     }
 
-                    // Add a "View Details" link
                     wineCard += `
                         <p><a href="/wine/${wine.wineID}">View Details</a></p>
                     `;
