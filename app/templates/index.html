@@ -144,6 +144,13 @@
         </div>
     </div>
 
+    <div>
+        <h2>Paired Wines</h2>
+        <div class="paired-wines" id="paired-wines">
+            <p>Loading paired wines...</p>
+        </div>
+    </div>
+
     <script>
         function populateDatabase() {
             fetch('/populate-database', { method: 'POST' })
@@ -151,7 +158,8 @@
                     if (response.ok) {
                         alert("Database populated successfully!");
                         loadCustomers();
-                        loadWines();  
+                        loadWines();
+                        loadPairedWines();  
                     } else {
                         alert("Failed to populate the database.");
                     }
@@ -205,13 +213,33 @@
                     `;
 
                     wineCard += `
-                        <button onclick="addToCart(${wine.wineID})">Add to Cart</button>
+                        <button onclick="addToCart(${wine.wineID})">Buy Now</button>
                     </div>`;
                     wineList.innerHTML += wineCard;
                 });
 
             } else {
                 alert("Failed to load wines.");
+            }
+        }
+
+        async function loadPairedWines() {
+            const response = await fetch('/api/paired-wines');
+            if (response.ok) {
+                const pairedWines = await response.json();
+                const pairedWinesList = document.getElementById("paired-wines");
+                pairedWinesList.innerHTML = "";
+
+                pairedWines.forEach(pair => {
+                    let pairCard = `
+                        <div class="pair-card">
+                            <p>${pair.wineName1} is paired with ${pair.wineName2}</p>
+                        </div>
+                    `;
+                    pairedWinesList.innerHTML += pairCard;
+                });
+            } else {
+                alert("Failed to load paired wines.");
             }
         }
 
@@ -233,16 +261,17 @@
             });
 
             if (response.ok) {
-                alert("Wine added to cart successfully!");
+                alert("Wine was bought successfully!");
             } else {
                 const error = await response.json();
-                alert("Failed to add wine to cart: " + error.message);
+                alert("Failed to buy wine: " + error.message);
             }
         }
 
         document.addEventListener("DOMContentLoaded", () => {
             loadCustomers();
             loadWines();
+            loadPairedWines();
         });
     </script>
 </body>

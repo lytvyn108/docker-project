@@ -485,6 +485,21 @@ def wine_detail(wine_id):
         app.logger.error(f"Error fetching wine details: {e}")
         return jsonify({"error": str(e)}), 500
     
+@app.route("/api/paired-wines", methods=["GET"])
+def get_paired_wines():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("""
+        SELECT w1.wineID as wineID1, w1.name as wineName1, w2.wineID as wineID2, w2.name as wineName2
+        FROM IsPaired ip
+        JOIN Wine w1 ON ip.wineID1 = w1.wineID
+        JOIN Wine w2 ON ip.wineID2 = w2.wineID
+    """)
+    paired_wines = cursor.fetchall()
+    conn.close()
+    return jsonify(paired_wines)
+    
 @app.route("/collection-wine-report")
 def collection_wine_report_page():
     try:
