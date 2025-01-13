@@ -113,6 +113,27 @@
         .wine-card button:hover {
             background-color: #d84315;
         }
+        .paired-wines {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        .pair-card {
+            width: 300px;
+            border: 1px solid #ddd;
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .pair-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -142,12 +163,12 @@
                 <p>Loading wines...</p>
             </div>
         </div>
-    </div>
 
-    <div>
-        <h2>Paired Wines</h2>
-        <div class="paired-wines" id="paired-wines">
-            <p>Loading paired wines...</p>
+        <div>
+            <h2>Paired Wines</h2>
+            <div class="paired-wines" id="paired-wines">
+                <p>Loading paired wines...</p>
+            </div>
         </div>
     </div>
 
