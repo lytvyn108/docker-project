@@ -1,6 +1,6 @@
 # Wine Store Application
 
-This is a Wine Store application built with Flask, Docker, and MySQL. The application allows customers to browse wines, add them to their cart, and view paired wines.
+This is a Wine Store application built with Flask, Docker, and MySQL.
 
 ## Prerequisites
 
