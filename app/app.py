@@ -141,11 +141,11 @@ def add_wine():
 def populate_database():
     try:
         num_customers = 10
-        num_wines = 10
-        num_orders = 5
-        num_collection_wines = 3
-        num_contains = 5
-        num_pairs = 3
+        num_wines = 21
+        num_orders = 10
+        num_collection_wines = 5
+        num_contains = 10
+        num_pairs = 5
         num_reviews = 5
 
         customers = generate_customers(num_customers)
